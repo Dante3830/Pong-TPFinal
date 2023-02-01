@@ -19,13 +19,15 @@ class Game {
         Ball ball(windowWidth / 2 + 50, windowHeight / 2);
         AIBat aibat(windowWidth - 40, windowHeight / 2);
 
-        //Tengo que poder hacer que me cargue la musica mp3
-        // Music music;
-        // music.openFromFile("Audios/lady-of-the-80s-.mp3");
-        // music.setVolume(100);
-
         while (window.isOpen()) {
 
+            Font font;
+            font.loadFromFile("VCR_OSD_MONO.ttf");
+            
+            //Tengo que poder hacer que me cargue la musica mp3
+            // Music music;
+            // music.openFromFile("Audios/lady-of-the-80s-.mp3");
+            // music.setVolume(100);
             //music.play();
 
             Event event;
@@ -75,23 +77,21 @@ class Game {
 
 
             //Texto y fuente
-            void updateLives() {
-                char pts[10];
-                _itoa_s(lives, pts, 10);
-                _lives.setString(pts);
-            }
-
-            ss << batscore << endl;
-
             Text BatScore;
-            Font font;
-            font.loadFromFile("VCR_OSD_MONO.ttf");
 
             BatScore.setFont(font);
             BatScore.setCharacterSize(60);
             BatScore.setFillColor(sf::Color::White);
 
             BatScore.setString(batscore);
+
+            /* TRANSFORMAR ESTO PARA BATSCORE Y AIBATSCORE
+            void updateLives() {
+                char pts[10];
+                _itoa_s(lives, pts, 10);
+                _lives.setString(pts);
+            }
+            */
 
 
             // Mensaje de victoria
