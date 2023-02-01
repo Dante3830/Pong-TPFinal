@@ -92,7 +92,7 @@ int main() {
         
         // Mensaje del inicio
         std::stringstream ss3;
-        ss3 << "Welcome to Pong.\n\nPress any key to begin";
+        ss3 << "\n\nPress any key to begin";
         Text startMessage;
 
         startMessage.setCharacterSize(50);
