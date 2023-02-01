@@ -9,51 +9,63 @@ private:
     RectangleShape aiBatObject;
 
 public:
-    AIBat(double x, double y);
-    Vector2f getAIBatPosition();
-    RectangleShape getAIBatObject();
-    FloatRect getAIBatFloatRect();
-    void moveAIBatUp();
-    void moveAIBatDown();
-    void update();
-    void Rebound();
-    void AIBatSpeedReverse();
+    
+    AIBat(double x, double y) {
+        aiBatPosition.x = x;
+        aiBatPosition.y = y;
+        aiBatObject.setSize(sf::Vector2f(10, 150));
+        aiBatObject.setPosition(aiBatPosition);
+        aiBatObject.setFillColor(sf::Color::Red);
+    }
 
-};
+    Vector2f getAIBatPosition() {
+        return aiBatPosition;
+    }
 
-// AIBAT functions
-AIBat::AIBat(double x, double y) {
-    aiBatPosition.x = x;
-    aiBatPosition.y = y;
-    aiBatObject.setSize(sf::Vector2f(10, 150));
-    aiBatObject.setPosition(aiBatPosition);
-    aiBatObject.setFillColor(sf::Color::Red);
-}
+    RectangleShape getAIBatObject() {
+        return aiBatObject;
+    }
 
-RectangleShape AIBat::getAIBatObject() {
-    return aiBatObject;
-}
+    FloatRect getAIBatFloatRect() {
+        return aiBatObject.getGlobalBounds();
+    }
 
-Vector2f AIBat::getAIBatPosition() {
-    return aiBatPosition;
-}
+    void moveAIBatUp() {
+        if (aiBatLimitsUp() == false) {
+            aiBatPosition.y -= aiBatSpeed;
+        }
+    }
 
-FloatRect AIBat::getAIBatFloatRect() {
-    return aiBatObject.getGlobalBounds();
-}
+    void moveAIBatDown() {
+        if (aiBatLimitsDown() == false) {
+            aiBatPosition.y += aiBatSpeed;
+        }
+    }
 
-void AIBat::moveAIBatUp() {
-    aiBatPosition.y -= aiBatSpeed;
-}
+    void update() {
+        aiBatObject.setPosition(aiBatPosition);
+    }
 
-void AIBat::moveAIBatDown() {
-    aiBatPosition.y += aiBatSpeed;
-}
+    bool aiBatLimitsUp() {
+        if (aiBatPosition.y <= 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    bool aiBatLimitsDown() {
+        if (aiBatPosition.y >= windowHeight - 150) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
-void AIBat::update() {
-    aiBatObject.setPosition(aiBatPosition);
-}
+    void AIBatSpeedReverse() {
+        aiBatSpeed *= -1;
+    }
 
-void AIBat::AIBatSpeedReverse() {
-    aiBatSpeed *= -1;
-}
+}; 
