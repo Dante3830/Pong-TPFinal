@@ -3,7 +3,7 @@
 
 int windowWidth = 1000;
 int windowHeight = 700;
-int batscore = -1;
-int aiBatscore = 0;
+int batScore = -1;
+int aiBatScore = 0;
 
-int aibatcounter = 0;
+int aiBatCounter = 0;
