@@ -6,16 +6,16 @@ class Bat {
 private:
     Vector2f batPosition;
     double batSpeed = 0.85f;
-    RectangleShape BatObject;
+    RectangleShape batObject;
 
 public:
-    
+
     Bat(double x, double y) {
         batPosition.x = x;
         batPosition.y = y;
-        BatObject.setSize(sf::Vector2f(10, 150));
-        BatObject.setPosition(batPosition);
-        BatObject.setFillColor(sf::Color::Blue);
+        batObject.setSize(sf::Vector2f(10, 150));
+        batObject.setPosition(batPosition);
+        batObject.setFillColor(sf::Color::Blue);
     }
 
     Vector2f getBatPosition() {
@@ -23,11 +23,11 @@ public:
     }
 
     RectangleShape getBatObject() {
-        return BatObject;
+        return batObject;
     }
 
     FloatRect getBatFloatRect() {
-        return BatObject.getGlobalBounds();
+        return batObject.getGlobalBounds();
     }
 
     void moveBatUp() {
@@ -43,23 +43,15 @@ public:
     }
 
     void update() {
-        BatObject.setPosition(batPosition);
+        batObject.setPosition(batPosition);
     }
 
     bool batLimitsUp() {
-        if (batPosition.y <= 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return (batPosition.y <= 0);
     }
 
     bool batLimitsDown() {
-        if (batPosition.y >= windowHeight - 150) {
-            return true;
-        } else {
-            return false;
-        }
+        return (batPosition.y >= windowHeight - 150);
     }
 
 };
