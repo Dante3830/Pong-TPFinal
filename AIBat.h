@@ -9,7 +9,7 @@ private:
     RectangleShape aiBatObject;
 
 public:
-    
+
     AIBat(double x, double y) {
         aiBatPosition.x = x;
         aiBatPosition.y = y;
@@ -47,25 +47,15 @@ public:
     }
 
     bool aiBatLimitsUp() {
-        if (aiBatPosition.y <= 0) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return (aiBatPosition.y <= 0);
     }
-    
+
     bool aiBatLimitsDown() {
-        if (aiBatPosition.y >= windowHeight - 150) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return (aiBatPosition.y >= windowHeight - 150);
     }
 
     void AIBatSpeedReverse() {
         aiBatSpeed *= -1;
     }
 
-}; 
+};
