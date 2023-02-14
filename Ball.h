@@ -4,40 +4,37 @@
 
 class Ball {
 private:
-    RectangleShape BallObject;
+    RectangleShape ballObject;
     Vector2f ballPosition;
 
-public:
+    //Tengo que poder hacer que me cargue el audio
     SoundBuffer buffer;
-    Sound sound;
+    Sound hit;
 
+public:
+   
     RectangleShape getBallObject() {
-        return BallObject;
+        return ballObject;
     }
 
     Ball(double x, double y) {
         ballPosition.x = x;
         ballPosition.y = y;
-        BallObject.setSize(sf::Vector2f(10, 10));
+        ballObject.setSize(sf::Vector2f(10, 10));
 
-        BallObject.setPosition(ballPosition);
+        ballObject.setPosition(ballPosition);
 
-        BallObject.setFillColor(sf::Color::White);
+        ballObject.setFillColor(sf::Color::White);
 
-        //Tengo que poder hacer que me cargue el audio
-        //if (!buffer.loadFromFile("C:\\Users\\Leo\\Desktop\\Pong\\Audios\\PongHit2.wav")) {
-        //     cout << "Error. No se pudo cargar audio." << fs::current_path() << endl;
-        // }
-
-        //sound.setBuffer(buffer);
+        buffer.loadFromFile("Audios/PongHit2.wav");
+        hit.setBuffer(buffer);
     }
 
     FloatRect getBallFloatRect() {
-        return BallObject.getGlobalBounds();
+        return ballObject.getGlobalBounds();
     }
-    
+
     void reboundSides() {
-        
         if (ballPosition.y > windowHeight) {
             ballVelocityY *= -1;
         }
@@ -45,35 +42,38 @@ public:
             ballVelocityY *= -1;
         }
 
-        sound.play();
-
+        hit.play();
     }
 
     void passLeft() {
         if (ballPosition.x < 0) {
-            batscore++;
+            aiBatScore++;
             ballPosition.x = windowWidth / 2;
             ballPosition.y = windowHeight / 2;
 
             if (rand() % 2 == 1) {
                 ballVelocityY *= -1;
-            } else if (rand() % 2 == 2) {
+            }
+            else if (rand() % 2 == 2) {
                 ballVelocityX *= -1;
             }
         }
     }
 
     Vector2f getBallPosition;
-    
+
     void passRight() {
         if (ballPosition.x > windowWidth) {
+            batScore++;
+            
             ballPosition.x = windowWidth / 2;
             ballPosition.y = windowHeight / 2;
 
-            if (rand() % 2 == 1) { 
-                ballVelocityY *= -1; 
-            } else if (rand() % 2 == 2) { 
-                ballVelocityX *= -1; 
+            if (rand() % 2 == 1) {
+                ballVelocityY *= -1;
+            }
+            else if (rand() % 2 == 2) {
+                ballVelocityX *= -1;
             }
         }
     }
@@ -87,18 +87,18 @@ public:
         ballPosition.x += ballVelocityX;
         ballPosition.y += ballVelocityY;
 
-        BallObject.setPosition(ballPosition);
+        ballObject.setPosition(ballPosition);
     }
 
     double ballVelocityX = 0.5f;
     double ballVelocityY = 0.5f;
-    
+
     void stop() {
         ballVelocityY = 0;
         ballVelocityX = 0;
     }
 
-    void go() {
+    void resetVelocity() {
         ballVelocityY = 0.5f;
         ballVelocityX = 0.5f;
     }
