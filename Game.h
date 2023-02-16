@@ -3,30 +3,43 @@
 #include "stdafx.h"
 #include "Bat.h"
 #include "Ball.h"
-#include "AIBat.h"
+#include "AiBat.h"
 #include "Constants.h"
 
 class Game {
 private:
+
+    RenderWindow* wnd;
+    Ball* bll;
+    Bat* bt;
+    AiBat* aiBt;
+
     Font font;
     SoundBuffer buffer;
     Sound music;
 
+    Texture Space;
+    Sprite space;
+
     Text title;
     Text startMessage;
-
-    Text _BatScore;
+    Text _batScore;
     Text _aiBatScore;
-
     Text finishMessage1;
     Text finishMessage2;
 
+    Event event;
+
+    bool score;
+
+    // Actualizar el puntaje del jugador
     void updateBatScore() {
         char bts[10];
         _itoa_s(batScore, bts, 10);
-        _BatScore.setString(bts);
+        _batScore.setString(bts);
     }
 
+    // Actualizar el puntaje de la IA
     void updateAiBatScore() {
         char aibts[10];
         _itoa_s(aiBatScore, aibts, 10);
@@ -36,6 +49,26 @@ private:
 public:
 
     Game() {
+        wnd = new RenderWindow(VideoMode(windowWidth, windowHeight), "Pong");
+        
+        // Seteando posicion de la pelota, el jugador y la IA
+        bll = new Ball(windowWidth / 2 + 50, windowHeight / 2);
+        bt = new Bat(20, windowHeight / 2);
+        aiBt = new AiBat(windowWidth - 40, windowHeight / 2);
+
+        // Si score esta en false, no mostara el puntaje todavia
+        score = false;
+
+        // Cargando la fuente, el fondo y la musica 
+        font.loadFromFile("VCR_OSD_MONO.ttf");
+
+        Space.loadFromFile("space.png");
+        space.setTexture(Space);
+
+        buffer.loadFromFile("MainMusic.wav");
+        music.setBuffer(buffer);
+        music.setVolume(10);
+
         // Mensaje del inicio
         title.setCharacterSize(90);
         title.setPosition(windowWidth / 2 - 400, windowHeight / 2 - 100);
@@ -53,165 +86,169 @@ public:
         finishMessage1.setPosition(windowWidth / 2 - 400, windowHeight / 2 - 100);
         finishMessage1.setFont(font);
         finishMessage1.setFillColor(Color::White);
-        finishMessage1.setString("                 ¡Ganaste!\n\n   Presiona cualquier tecla para reiniciar");
+        finishMessage1.setString("                 ¡Ganaste!\n\n   Presiona las felchas para reiniciar");
 
         // Mensaje de derrota
         finishMessage2.setCharacterSize(30);
         finishMessage2.setPosition(windowWidth / 2 - 400, windowHeight / 2 - 100);
         finishMessage2.setFont(font);
         finishMessage2.setFillColor(Color::White);
-        finishMessage2.setString("                 Perdiste...\n\n   Presiona cualquier tecla para reiniciar");
+        finishMessage2.setString("                 Perdiste...\n\n   Presiona las flechas para reiniciar");
 
         //Mostrar puntaje del jugador
-        _BatScore.setCharacterSize(60);
-        _BatScore.setPosition(800.0f, 100.0f);
-        _BatScore.setFont(font);
-        _BatScore.setFillColor(Color::White);
+        _batScore.setCharacterSize(120);
+        _batScore.setPosition(200.0f, 100.0f);
+        _batScore.setFont(font);
+        _batScore.setFillColor(Color::Color(63, 65, 227));
 
         //Mostrar puntaje de la IA
-        _aiBatScore.setCharacterSize(60);
-        _aiBatScore.setPosition(200.0f, 100.0f);
+        _aiBatScore.setCharacterSize(120);
+        _aiBatScore.setPosition(750.0f, 100.0f);
         _aiBatScore.setFont(font);
-        _aiBatScore.setFillColor(Color::White);
+        _aiBatScore.setFillColor(Color::Red);
 
         updateBatScore();
         updateAiBatScore();
     }
 
-    void musicAndFont() {
-        //Cargando la fuente 
-        font.loadFromFile("VCR_OSD_MONO.ttf");
-
-        //Seteando la musica
-        buffer.loadFromFile("MainMusic.wav");
-        music.setBuffer(buffer);
+    // Controles del usuario
+    void controls() {
+        if (((event.type == event.KeyPressed) && event.key.code == Keyboard::Up)) {
+            bt->moveBatUp();
+        } else if (((event.type == event.KeyPressed) && event.key.code == Keyboard::Down)) {
+            bt->moveBatDown();
+        }
     }
 
-    //void logic() {
+    // Logica del juego
+    void logic() {
+        bll->reboundSides();
+        bll->passLeft();
+        bll->passRight();
 
-    //}
+        if (bll->getBallFloatRect().intersects(bt->getBatFloatRect())) {
+            bll->reboundBatOrAI();
+        }
+
+        if (bll->getBallFloatRect().intersects(aiBt->getAiBatFloatRect())) {
+            bll->reboundBatOrAI();
+        }
+
+        if (bll->getBallFloatRect().top > (aiBt->getAiBatFloatRect().top) + 50) {
+            if (aiBatCounter % 60 == 0) {
+                aiBt->moveAiBatDown();
+            }
+        }
+
+        if (bll->getBallFloatRect().top < (aiBt->getAiBatFloatRect().top) + 50) {
+            if (aiBatCounter % 60 == 0) {
+                aiBt->moveAiBatUp();
+            }
+        }
+
+        if (bll->getBallPosition.x > windowWidth) {
+            aiBt->aiBatSpeedReverse();
+        }
+    }
+
+    // Actualizacion de la posicion de la pelota, el jugador y la IA
+    void update() {
+        if (aiBatCounter == 1000000) {
+            aiBatCounter = 0;
+        }
+
+        aiBatCounter++;
+
+        bll->update();
+        bt->update();
+        aiBt->update();
+    }
+
+    // Iniciacion del juego
+    void winOrLose() {
+        if (score) {
+            //Mostrar puntaje de cada uno
+            wnd->draw(_batScore);
+            wnd->draw(_aiBatScore);
+        }
+        
+        if (batScore == 10) {
+            //En caso de victoria
+            wnd->draw(finishMessage1);
+            bll->stop();
+
+            if (event.type == event.KeyPressed) {
+                aiBatScore = 0;
+                batScore = 0;
+
+                bll->resetVelocity();
+            }
+
+        }
+        else if (aiBatScore == 10) {
+            //En caso de derrota
+            wnd->draw(finishMessage2);
+            bll->stop();
+
+            if (event.type == event.KeyPressed) {
+                aiBatScore = 0;
+                batScore = 0;
+
+                bll->resetVelocity();
+            }
+
+        }
+        else if (batScore == -1) {
+            wnd->draw(title);
+            wnd->draw(startMessage);
+            bll->stop();
+
+            if (event.type == event.KeyPressed) {
+                aiBatScore = 0;
+                batScore = 0;
+                score = true;
+
+                bll->resetVelocity();
+            }
+
+        }
+        else {
+            wnd->draw(bt->getBatObject());
+            wnd->draw(bll->getBallObject());
+            wnd->draw((aiBt->getAiBatObject()));
+        }
+    }
 
     void pong() {
-        RenderWindow window(VideoMode(windowWidth, windowHeight), "Pong");
-
-        //Creando los objetos
-        Bat bat(20, windowHeight / 2);
-        Ball ball(windowWidth / 2 + 50, windowHeight / 2);
-        AIBat aibat(windowWidth - 40, windowHeight / 2);
-
-        musicAndFont();
-
-        while (window.isOpen()) {
-
+         
+         music.play();
+         
+         while (wnd->isOpen()) {
             // Limpiar y dibujar fondo
-            window.clear(Color(34, 34, 34, 100));
+            wnd->clear();
+            wnd->draw(space);
 
-            window.setFramerateLimit(480);
+            // Setear limite de frames por segundo
+            wnd->setFramerateLimit(480);
 
-            music.play();
-
-            Event event;
-            while (window.pollEvent(event)) {
-                if (event.type == event.Closed) {
-                    window.close();
-                }
+            while (wnd->pollEvent(event)) {
+                if (event.type == Event::Closed)
+                    wnd->close();
             }
 
-            // Controles del usuario
-            if (((event.type == event.KeyPressed) && event.key.code == Keyboard::Up)) {
-                bat.moveBatUp();
-            }
-            else if (((event.type == event.KeyPressed) && event.key.code == Keyboard::Down)) {
-                bat.moveBatDown();
-            }
+            updateBatScore();
+            updateAiBatScore();
 
-             // Logica
-            ball.reboundSides();
-            ball.passLeft();
-            ball.passRight();
+            controls();
 
-            if (ball.getBallFloatRect().intersects(bat.getBatFloatRect())) {
-                ball.reboundBatorAI();
-            }
+            logic();
 
-            if (ball.getBallFloatRect().intersects(aibat.getAIBatFloatRect())) {
-                ball.reboundBatorAI();
-            }
+            update();
 
-            if (ball.getBallFloatRect().top > (aibat.getAIBatFloatRect().top) + 50) {
-                if (aiBatCounter % 60 == 0) {
-                    aibat.moveAIBatDown();
-                }
-            }
+            winOrLose();
 
-            if (ball.getBallFloatRect().top < (aibat.getAIBatFloatRect().top) + 50) {
-                if (aiBatCounter % 60 == 0) {
-                    aibat.moveAIBatUp();
-                }
-            }
-
-            if (ball.getBallPosition.x > windowWidth) {
-                aibat.AIBatSpeedReverse();
-            }
-
-             // Actualizacion
-            if (aiBatCounter == 1000000) {
-                aiBatCounter = 0;
-            }
-
-            aiBatCounter++;
-            
-            ball.update();
-            bat.update();
-            aibat.update();
-
-            // Textos e iniciacion //
-
-            if (batScore == 10) {
-                //En caso de victoria
-                window.draw(finishMessage1);
-                ball.stop();
-
-                if (event.type == event.KeyPressed) {
-                    aiBatScore = 0;
-                    batScore = 0;
-                    ball.resetVelocity();
-                }
-
-            } else if (aiBatScore == 10) {
-                //En caso de derrota
-                window.draw(finishMessage2);
-                ball.stop();
-
-                if (event.type == event.KeyPressed) {
-                    aiBatScore = 0;
-                    batScore = 0;
-                    ball.resetVelocity();
-                }
-
-            } else if (batScore == -1) {
-                window.draw(title);
-                window.draw(startMessage);
-                ball.stop();
-
-                if (event.type == event.KeyPressed) {
-                    aiBatScore = 0;
-                    batScore = 0;
-
-                    //Mostrar puntaje de cada uno
-                    window.draw(_BatScore);
-                    window.draw(_aiBatScore);
-
-                    ball.resetVelocity();
-                }
-
-            } else {
-                window.draw(bat.getBatObject());
-                window.draw(ball.getBallObject());
-                window.draw((aibat.getAIBatObject()));
-            }
-
-            window.display();
+            wnd->display();
         }
+
     }
 };
