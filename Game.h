@@ -31,6 +31,7 @@ private:
     Event event;
 
     bool score;
+    bool loop = true;
 
     // Actualizar el puntaje del jugador
     void updateBatScore() {
@@ -221,6 +222,7 @@ public:
 
     void pong() {
          
+         music.setLoop(loop);
          music.play();
          
          while (wnd->isOpen()) {
